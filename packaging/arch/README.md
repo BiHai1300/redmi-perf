@@ -95,6 +95,33 @@ sed -i 's|wanxinhao/redmi-perf|BiHai1300/redmi-perf|' PKGBUILD
 sed -i 's|https://github.com/wanxinhao/redmi-perf.git|file:///path/to/redmi-perf|' PKGBUILD
 ```
 
+## 手动安装 vs PKGBUILD
+
+两条路径最终都得到「DKMS 模块 + CLI + 开机自动加载」，但细节不同：
+
+| 步骤 | `scripts/install-redmi-perf.sh --dkms` | `makepkg -si` |
+|---|---|---|
+| 依赖检查 | 脚本检查头文件/dkms/cargo，缺了直接报错 | pacman 处理 `depends`；头文件缺失时由 `.install` 提示 |
+| 模块源码 | `/usr/src/redmi-perf-0.2.0` | `/usr/src/redmi-perf-<pkgver>` |
+| DKMS 构建 | 安装时 `dkms add/build/install` 当前内核 | dkms 的 pacman 钩子自动 build/install（所有已装内核）|
+| 模块加载 | 立即 `modprobe`，并自动从 `bitland-mifs-wmi` 抢回 WMI 设备 | 遵循打包指南不在 `.install` 里 `modprobe`；开机靠 `/usr/lib/modules-load.d/`，首次手动 `modprobe` |
+| CLI | `/usr/local/bin/redmi-perf` | `/usr/bin/redmi-perf` |
+| 自动加载配置 | `/etc/modules-load.d/redmi-perf.conf` | `/usr/lib/modules-load.d/redmi-perf.conf` |
+| 卸载 | 清 DKMS 版本、`/usr/local/bin`、`/etc` 配置、旧 `extra/` 模块 | pacman 删包内文件，dkms 钩子卸载模块；**旧手动文件不归 pacman 管** |
+| `nvpcf-shim` | 单独手动安装 | **不包含**（需手动装） |
+
+**有意保留的差异**：包不在 `.install` 里加载模块或做 rebind（Arch 打包指南要求
+“不要用 .install 加载/卸载模块”）；首次使用需要 `sudo modprobe redmi_perf_wmi`，
+之后开机自动加载。设备冲突时 CLI 和 `.install` 都会打印可执行的修复命令。
+
+**可能会“漏”的部分，包已经用警告覆盖**：旧的手动安装如果没清干净，`.install`
+会检测并提示：
+
+- `/usr/local/bin/redmi-perf`（会遮蔽包里的 `/usr/bin/redmi-perf`）
+- 多个 `/usr/src/redmi-perf-*`（内核升级时重复编译同一个模块名）
+- `/usr/lib/modules/*/extra/redmi_perf_wmi.ko*`（旧的非 DKMS 安装）
+- `/etc/modules-load.d/redmi-perf.conf`（与包内 vendor 配置重复，无害）
+
 ## 从脚本安装迁移
 
 如果你之前跑过 `scripts/install-redmi-perf.sh --dkms`，DKMS 里会有一个

@@ -61,6 +61,11 @@ jobs:
             sed -e 's/^[[:space:]]*Operation[[:space:]]*=[[:space:]]*//' -e 's/[[:space:]]*$//' |
             grep -vxE 'Install|Upgrade|Remove'
 
+      - name: PKGBUILD syntax
+        run: |
+          bash -n packaging/arch/redmi-perf-git/PKGBUILD
+          bash -n packaging/arch/redmi-perf-git/redmi-perf-dkms-git.install
+
       - name: Python patch tooling syntax
         run: |
           python3 -m py_compile nvpcf-shim/patch_nv_acpi.py nvpcf-shim/unpatch_nv_acpi.py

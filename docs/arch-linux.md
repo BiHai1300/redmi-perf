@@ -101,6 +101,20 @@ redmi-perf list
 dmesg | grep redmi_perf
 ```
 
+## 用 PKGBUILD 安装（可选）
+
+仓库里带了 AUR 风格的 `-git` 包，适合想用 pacman 管理、或准备发 AUR 的场景：
+
+```bash
+sudo pacman -S --needed base-devel dkms cargo git
+cd packaging/arch/redmi-perf-git
+makepkg -si
+```
+
+会装两个包：`redmi-perf-git`（CLI）和 `redmi-perf-dkms-git`（DKMS 模块），
+后者由 `dkms` 的 pacman 钩子在安装后自动编译。细节、从脚本安装的迁移、
+本地 fork 测试方法见 [../packaging/arch/README.md](../packaging/arch/README.md)。
+
 ## 安装 NVPCF shim（可选，需 nvidia-open-dkms）
 
 ```bash

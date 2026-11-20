@@ -1,0 +1,35 @@
+_message() {
+  printf '%s\n' \
+    '' \
+    'The redmi_perf_wmi kernel module is built by DKMS for each installed' \
+    'kernel. Load it now with:' \
+    '' \
+    '    sudo modprobe redmi_perf_wmi' \
+    '' \
+    'To load it automatically at boot:' \
+    '' \
+    '    echo redmi_perf_wmi | sudo tee /etc/modules-load.d/redmi-perf.conf' \
+    '' \
+    'The NVPCF shim for NVIDIA kernel modules is not installed by this' \
+    'package. See docs/arch-linux.md in the upstream repository.' \
+    ''
+}
+
+post_install() {
+  _message
+}
+
+post_upgrade() {
+  _message
+}
+
+pre_remove() {
+  printf '%s\n' \
+    '' \
+    'The redmi_perf_wmi module may still be loaded. Unload it with:' \
+    '' \
+    '    sudo modprobe -r redmi_perf_wmi' \
+    '' \
+    'If you enabled autoloading, remove /etc/modules-load.d/redmi-perf.conf.' \
+    ''
+}

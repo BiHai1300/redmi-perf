@@ -49,6 +49,12 @@ Arch Linux 与 NVIDIA 开源内核模块（`nvidia-open`）适配。
   运行期的平台限制更新保持不变
 - `after-reboot-check.sh` 增加初始化窗口日志和 `nvpcf_shim_pshare_init` 参数显示
 
+### 打包
+
+- 新增 AUR 风格 PKGBUILD `packaging/arch/redmi-perf-git`：
+  拆分为 `redmi-perf-git`（Rust CLI）和 `redmi-perf-dkms-git`（DKMS 模块），
+  遵循 Arch 的 DKMS / Rust / VCS 打包指南；`nvpcf-shim` 不打包（需手动安装）
+
 ### 文档
 
 - 新增 [docs/arch-linux.md](docs/arch-linux.md)：Arch 依赖、clang 内核、

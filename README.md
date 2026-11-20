@@ -94,6 +94,14 @@ sudo ./scripts/install-redmi-perf.sh --dkms
 Arch 用户可以直接跑同一条命令（自动走 pacman / DKMS）；先用
 `./scripts/install-redmi-perf.sh --check` 看缺什么包。
 
+也可以走打包安装（CLI + DKMS 模块两个包）：
+
+```bash
+cd packaging/arch/redmi-perf-git && makepkg -si
+```
+
+见 [packaging/arch/README.md](packaging/arch/README.md)。
+
 ### 二、NVPCF 断言修复（可选）
 
 > ⚠ **这一步会替换内核里的 nvidia 模块。装坏了会开不了机。**

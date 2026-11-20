@@ -9,8 +9,8 @@ Windows 上用「小米控制中心 / GCommandCenter」能一键切性能模式�
 > **状态**：可用。
 > 已在 Redmi G Pro 2024（TM2211）+ Ubuntu 26.04 + 内核 7.0.0-42 +
 > NVIDIA 595.112.07 上验证；Arch Linux + 内核 7.3.0（clang/LTO）+
-> nvidia-open-dkms 620.73.04 上通过构建验证（见
-> [docs/arch-linux.md](docs/arch-linux.md)）。
+> nvidia-open-dkms 620.73.04 上已完成**运行时验证**：两条 SBIOS 断言消失，
+> EC 模式与功耗上限切换正常（见 [docs/arch-linux.md](docs/arch-linux.md)）。
 
 ## 效果
 
@@ -175,7 +175,7 @@ sudo ./scripts/bench.sh quiet turbo     # 只测指定模式
 | 项目 | 状态 |
 |---|---|
 | Ubuntu 26.04 + 内核 7.0.0-42 + NVIDIA 595.112.07（.run / nvidia-dkms） | ✅ 已验证（运行时） |
-| Arch Linux + 内核 7.3.0（clang + ThinLTO）+ nvidia-open-dkms 620.73.04 | ✅ 构建已验证（运行时待重启确认） |
+| Arch Linux + 内核 7.3.0（clang + ThinLTO）+ nvidia-open-dkms 620.73.04 | ✅ 已验证（运行时：断言消失，90/125/140W） |
 | Arch 预编译 `nvidia-open`（无源码） | ⚠ 只有 EC 性能模式，不能打 shim |
 | 闭源 `nvidia` / `nvidia-dkms`（Arch） | ❓ 布局有兼容分支，未验证 |
 

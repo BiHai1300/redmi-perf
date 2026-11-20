@@ -4,10 +4,16 @@
 使用 `redmi-perf` 的差异、安装步骤和排错方法。
 
 > 已在 **Arch Linux + 内核 7.3.0-2-cachyos-cjktty（clang + ThinLTO）+
-> nvidia-open-dkms 620.73.04** 上验证：内核模块、NVPCF shim 都能编译过，
-> 补丁能正确落进 `nv-acpi.c`，产物带全部 `nvpcf_shim_*` 参数。
-> 运行时行为（ACPI 应答改写、断言消失）需要重启后按
-> [`nvpcf-shim/after-reboot-check.sh`](../nvpcf-shim/after-reboot-check.sh) 确认。
+> nvidia-open-dkms 620.73.04** 上完成构建与运行时验证：
+>
+> - 内核模块、NVPCF shim 编译通过，补丁正确落进 `nv-acpi.c`
+> - 开机后两条 `failed to get ... from SBIOS` 断言消失，日志中只出现一次
+>   `init window: PShareStatus UPDATE_LIMIT pending 0x1 -> 0x0`
+> - EC 模式切换正常；`Current Power Limit` 实测为
+>   balanced 90W / turbo 125W / full-speed 140W（quiet 显示 90W，
+>   以固件静态表为准）
+>
+> 复现：[`nvpcf-shim/after-reboot-check.sh`](../nvpcf-shim/after-reboot-check.sh)。
 
 ## 与 Ubuntu 的差异
 

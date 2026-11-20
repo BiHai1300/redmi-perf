@@ -273,6 +273,12 @@ GPS 0x2a (PSHAREPARAMS)                     # 到这里才初始化 TGPU/PPMD �
 `UPDATE_LIMIT pending` 位清掉，让驱动跳过这次超前更新；运行期 0x20（powerd
 每 3 秒轮询）保持原样，平台限制更新仍然生效。
 
+> **实机验证（2026-11-20）**：Arch Linux + 内核 `7.3.0-2-cachyos-cjktty` +
+> `nvidia-open-dkms 620.73.04`，安装后重启，日志只剩一次
+> `init window: PShareStatus UPDATE_LIMIT pending 0x1 -> 0x0`，
+> 两条 SBIOS 断言不再出现；PPM 注入、EC 模式切换和
+> `Current Power Limit`（balanced 90W / turbo 125W / full-speed 140W）均正常。
+
 ## 逆向工具
 
 `tools/elfrela.py` —— 解析 ELF 重定位并映射回函数，用来在

@@ -58,6 +58,8 @@ Arch Linux 与 NVIDIA 开源内核模块（`nvidia-open`）适配。
   - PKGBUILD 的 DKMS 包安装 `/usr/lib/modules-load.d/redmi-perf.conf`，
     让模块在开机时尽早加载
   - `docs/arch-linux.md` 增加对应排错步骤
+  - 已在 Arch + 内核 7.3.0-2-cachyos-cjktty + nvidia-open-dkms 620.73.04
+    上实机验证：两条 SBIOS 断言消失，`init window` 日志只出现一次
 
 ### 打包
 

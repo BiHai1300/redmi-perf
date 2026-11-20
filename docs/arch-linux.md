@@ -255,6 +255,55 @@ echo 1 | sudo tee /sys/module/nvidia/parameters/nvpcf_shim_pshare_init
 （这个参数只在初始化窗口内起作用，运行时改对已经过去的初始化无效，
 需要重启验证。）
 
+### `/sys/class/redmi_perf` 不存在 / `redmi-perf` 报 No such file or directory
+
+先确认模块状态：
+
+```bash
+lsmod | grep redmi_perf_wmi
+```
+
+- 没加载：`sudo modprobe redmi_perf_wmi`
+- 已加载但没有 `/sys/class/redmi_perf`：多半是内核 **7.3+ 自带的
+  `bitland-mifs-wmi`** 抢先绑定了同一个 MIFS WMI 设备（`B60BFB48-…`）。
+  WMI 设备只能绑定一个驱动，谁先绑定谁生效，后加载的 `redmi_perf_wmi`
+  不会 probe，也就不会创建 sysfs 类。
+
+  把设备从内核自带驱动手里解绑，再让我们的驱动绑定：
+
+  ```bash
+  # 1. 解绑内核自带的 bitland-mifs-wmi
+  echo B60BFB48-3E5B-49E4-A0E9-8CFFE1B3434B-4 | \
+    sudo tee /sys/bus/wmi/drivers/bitland-mifs-wmi/unbind
+
+  # 2. 重新加载 redmi_perf_wmi
+  sudo modprobe -r redmi_perf_wmi
+  sudo modprobe redmi_perf_wmi
+
+  # 3. 检查
+  ls /sys/class/redmi_perf
+  ```
+
+  如果第 3 步还是空的，再显式绑定一次：
+
+  ```bash
+  echo B60BFB48-3E5B-49E4-A0E9-8CFFE1B3434B-4 | \
+    sudo tee /sys/bus/wmi/drivers/redmi_perf/bind
+  ```
+
+  开机自动加载：
+
+  - 脚本安装：`/etc/modules-load.d/redmi-perf.conf`
+  - PKGBUILD 安装：包内的 `/usr/lib/modules-load.d/redmi-perf.conf`
+
+  目的都是让 `redmi_perf_wmi` 在 udev 自动加载 `bitland-mifs-wmi` 之前先加载。
+  极端情况下仍可能被抢占，按上面的步骤解绑一次即可。
+
+> 补充：内核 7.3 的 `bitland-mifs-wmi` 还会在 WMI 设备下提供 `gpu_mode`、
+> `fan_boost`、`kb_mode` 和 ACPI `platform_profile`。但在 TM2211 上读
+> `gpu_mode` 会报协议错误（`Protocol error`），所以本项目仍使用自己的
+> `redmi_perf_wmi` 模块。
+
 ### 内核更新后 shim 不生效
 
 正常，也是安全的默认行为：shim 模块的 `vermagic` 对不上新内核，

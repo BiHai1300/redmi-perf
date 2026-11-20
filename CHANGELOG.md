@@ -49,6 +49,16 @@ Arch Linux 与 NVIDIA 开源内核模块（`nvidia-open`）适配。
   运行期的平台限制更新保持不变
 - `after-reboot-check.sh` 增加初始化窗口日志和 `nvpcf_shim_pshare_init` 参数显示
 
+### 修复
+
+- 内核 7.3+ 自带的 `bitland-mifs-wmi` 会抢先绑定同一个 MIFS WMI 设备，
+  导致 `redmi_perf_wmi` 加载但不 probe、`/sys/class/redmi_perf` 不存在：
+  - `redmi-perf` 失败时给出解绑/重绑提示
+  - `install-redmi-perf.sh` 检测到设备被其他驱动占用时自动解绑并重新绑定
+  - PKGBUILD 的 DKMS 包安装 `/usr/lib/modules-load.d/redmi-perf.conf`，
+    让模块在开机时尽早加载
+  - `docs/arch-linux.md` 增加对应排错步骤
+
 ### 打包
 
 - 新增 AUR 风格 PKGBUILD `packaging/arch/redmi-perf-git`：

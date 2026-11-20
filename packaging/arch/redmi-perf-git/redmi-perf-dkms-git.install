@@ -2,13 +2,18 @@ _message() {
   printf '%s\n' \
     '' \
     'The redmi_perf_wmi kernel module is built by DKMS for each installed' \
-    'kernel. Load it now with:' \
+    'kernel and is loaded automatically at boot.' \
+    '' \
+    'Load it now with:' \
     '' \
     '    sudo modprobe redmi_perf_wmi' \
     '' \
-    'To load it automatically at boot:' \
+    'If /sys/class/redmi_perf is still missing, the in-tree bitland-mifs-wmi' \
+    'driver may have claimed the MiInterface WMI device. Rebind it:' \
     '' \
-    '    echo redmi_perf_wmi | sudo tee /etc/modules-load.d/redmi-perf.conf' \
+    '    echo B60BFB48-3E5B-49E4-A0E9-8CFFE1B3434B-4 | \' \
+    '      sudo tee /sys/bus/wmi/drivers/bitland-mifs-wmi/unbind' \
+    '    sudo modprobe redmi_perf_wmi' \
     '' \
     'The NVPCF shim for NVIDIA kernel modules is not installed by this' \
     'package. See docs/arch-linux.md in the upstream repository.' \

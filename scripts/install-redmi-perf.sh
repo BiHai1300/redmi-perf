@@ -235,6 +235,35 @@ if [[ $loaded -ne 1 ]]; then
 	fi
 	exit 1
 fi
+
+# 内核 7.3+ 自带 bitland-mifs-wmi 也匹配同一个 MIFS WMI 设备；谁先绑定谁生效。
+# 如果设备被它占着，我们的驱动不会 probe，/sys/class/redmi_perf 就不会出现。
+if [ ! -e /sys/class/redmi_perf ]; then
+	MIFS_DEV="$(ls -d /sys/bus/wmi/devices/B60BFB48-* 2>/dev/null | head -1)"
+	CUR_DRV=""
+	if [ -n "$MIFS_DEV" ] && [ -e "$MIFS_DEV/driver" ]; then
+		CUR_DRV="$(basename "$(readlink -f "$MIFS_DEV/driver")")"
+	fi
+	if [ -n "$MIFS_DEV" ] && [ -n "$CUR_DRV" ] && [ "$CUR_DRV" != "redmi_perf" ]; then
+		echo "  MiInterface WMI 设备被 $CUR_DRV 占用，解绑后重试"
+		printf '%s' "${MIFS_DEV##*/}" | sudo_do tee "/sys/bus/wmi/drivers/$CUR_DRV/unbind" >/dev/null || true
+		sudo_do modprobe -r redmi_perf_wmi 2>/dev/null || true
+		sudo_do modprobe redmi_perf_wmi
+	fi
+	if [ -n "$MIFS_DEV" ] && [ -e /sys/bus/wmi/drivers/redmi_perf/bind ]; then
+		printf '%s' "${MIFS_DEV##*/}" |
+			sudo_do tee /sys/bus/wmi/drivers/redmi_perf/bind >/dev/null 2>&1 || true
+	fi
+	sleep 1
+fi
+if [ ! -e /sys/class/redmi_perf ]; then
+	echo "错误: 模块已加载，但没有出现 /sys/class/redmi_perf。" >&2
+	echo "  常见原因：MIFS WMI 设备被内核自带的 bitland-mifs-wmi 驱动占用。" >&2
+	echo "  手动修复：" >&2
+	echo "    echo B60BFB48-3E5B-49E4-A0E9-8CFFE1B3434B-4 | sudo tee /sys/bus/wmi/drivers/bitland-mifs-wmi/unbind" >&2
+	echo "    sudo modprobe redmi_perf_wmi" >&2
+	exit 1
+fi
 echo "模块已加载。"
 echo
 

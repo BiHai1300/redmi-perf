@@ -33,11 +33,34 @@ sudo modprobe redmi_perf_wmi     # 立即加载
 redmi-perf get                   # 看当前性能模式
 ```
 
-开机自动加载（可选，包不会替你做，避免强制加载内核模块）：
+包内带有 `/usr/lib/modules-load.d/redmi-perf.conf`，开机时会自动加载模块。
+
+> **为什么要自动加载**：内核 7.3+ 自带的 `bitland-mifs-wmi` 也匹配同一个
+> MIFS WMI 设备（`B60BFB48-…`），WMI 设备只能绑一个驱动。谁先加载谁生效；
+> 先加载我们的模块，才能拿到 `/sys/class/redmi_perf`。
+
+## 与内核自带 `bitland-mifs-wmi` 冲突
+
+如果 `redmi-perf get` 报 `/sys/class/redmi_perf/...: No such file or directory`，
+而 `lsmod | grep redmi_perf_wmi` 显示模块已加载，通常就是设备被内核自带驱动绑走了：
 
 ```bash
-echo redmi_perf_wmi | sudo tee /etc/modules-load.d/redmi-perf.conf
+echo B60BFB48-3E5B-49E4-A0E9-8CFFE1B3434B-4 | \
+  sudo tee /sys/bus/wmi/drivers/bitland-mifs-wmi/unbind
+sudo modprobe -r redmi_perf_wmi
+sudo modprobe redmi_perf_wmi
+ls /sys/class/redmi_perf
 ```
+
+仍为空时再显式 bind：
+
+```bash
+echo B60BFB48-3E5B-49E4-A0E9-8CFFE1B3434B-4 | \
+  sudo tee /sys/bus/wmi/drivers/redmi_perf/bind
+```
+
+CLI 本身也会在失败时打印这段提示。详见
+[../../docs/arch-linux.md](../../docs/arch-linux.md)。
 
 ## 版本规则
 

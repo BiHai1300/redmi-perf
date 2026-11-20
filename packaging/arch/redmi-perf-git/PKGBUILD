@@ -51,6 +51,7 @@ package_redmi-perf-git() {
   cd "$pkgbase"
   install -Dm0755 cli/target/release/redmi-perf "$pkgdir/usr/bin/redmi-perf"
   install -Dm0644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+
 }
 
 package_redmi-perf-dkms-git() {
@@ -70,4 +71,10 @@ package_redmi-perf-dkms-git() {
     -e "s/^PACKAGE_VERSION=.*/PACKAGE_VERSION=\"${pkgver}\"/" \
     kernel/redmi-perf-wmi/dkms.conf >"$_src/dkms.conf"
   install -Dm0644 LICENSE "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+
+  # 必须在 bitland-mifs-wmi（内核 7.3+ 自带）之前加载，否则它会把同一个
+  # MIFS WMI 设备绑走，redmi_perf_wmi 的 probe 永远不会执行。
+  install -d "$pkgdir/usr/lib/modules-load.d"
+  printf '%s\n' '# Load redmi_perf_wmi before the in-tree bitland-mifs-wmi driver' \
+    'redmi_perf_wmi' >"$pkgdir/usr/lib/modules-load.d/redmi-perf.conf"
 }

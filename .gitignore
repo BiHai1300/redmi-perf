@@ -35,3 +35,5 @@ __pycache__/
 /packaging/arch/*/pkg/
 /packaging/arch/*/*.pkg.tar.*
 /packaging/arch/*/*.src.tar.*
+# makepkg 对 -git 源会克隆一个裸仓库（名字等于 source 里的 folder）
+/packaging/arch/*/redmi-perf-git/

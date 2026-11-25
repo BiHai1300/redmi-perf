@@ -167,7 +167,13 @@ modules=${MODULES[*]}
 backup=$BACKUP
 EOF
 
-if [ "$INSTALL_HOOK" -eq 1 ] && [ "$(distro_family)" = arch ] && [ -d /etc/pacman.d/hooks ]; then
+if [ "$INSTALL_HOOK" -eq 0 ]; then
+	echo
+	echo "==> 5/5 跳过 pacman 钩子（--no-hook）"
+elif [ "$(distro_family)" != arch ]; then
+	echo
+	echo "==> 5/5 跳过 pacman 钩子（非 Arch：$(distro_id)）"
+else
 	echo
 	echo "==> 5/5 安装 pacman 钩子（NVIDIA 驱动升级后自动撤掉旧 shim）"
 	# pacman 的 Operation 只接受 Install / Upgrade / Remove。写错的话
@@ -185,9 +191,6 @@ if [ "$INSTALL_HOOK" -eq 1 ] && [ "$(distro_family)" = arch ] && [ -d /etc/pacma
 		echo "  /etc/pacman.d/hooks/90-nvpcf-shim-revert.hook"
 		echo "  /usr/local/lib/nvpcf-shim/"
 	fi
-else
-	echo
-	echo "==> 5/5 跳过 pacman 钩子（非 Arch 或 --no-hook）"
 fi
 
 echo
